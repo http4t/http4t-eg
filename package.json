@@ -1,0 +1,20 @@
+{
+  "name": "http4t-eg",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node src/app.ts"
+  },
+  "dependencies": {
+     "http4t": "file:../http4t",
+    "ts-node": "^8.0.2",
+    "typescript": "^3.3.3333"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.6",
+    "chai": "^4.2.0",
+    "mocha": "^6.0.2"
+  }
+}

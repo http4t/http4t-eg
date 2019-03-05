@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": ["esnext", "es2015"],
+    "module": "commonjs",
+    "strict": true,
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": true,
+    "esModuleInterop": true,
+    "noEmit": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"],
+  "types": [
+    "mocha",
+    "node",
+    "chai",
+    "moment"
+  ]
+}

@@ -1,4 +1,6 @@
-import { HttpHandler, HttpRequest, response, ServerHandler } from "http4t/contract/out/src";
+import { HttpHandler, HttpRequest } from "@http4t/core/contract";
+import { response } from "@http4t/core/responses";
+import { ServerHandler } from "@http4t/node/server";
 
 export class App implements HttpHandler {
   async handle(request: HttpRequest) {

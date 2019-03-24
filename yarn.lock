@@ -2,6 +2,14 @@
 # yarn lockfile v1
 
 
+"@http4t/core@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@http4t/core/-/core-0.0.2.tgz#a1c5019cfb733a7a5718cfd78d9ae02421461bb9"
+
+"@http4t/node@0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@http4t/node/-/node-0.0.1.tgz#1e03321e67e9ddc35e6839ac2ddd4ab03d78d8d5"
+
 "@types/chai@^4.1.7":
   version "4.1.7"
   resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.1.7.tgz#1b8e33b61a8c09cbe1f85133071baa0dbf9fa71a"
@@ -9,6 +17,10 @@
 "@types/mocha@^5.2.6":
   version "5.2.6"
   resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-5.2.6.tgz#b8622d50557dd155e9f2f634b7d68fd38de5e94b"
+
+"@types/node@11.11.6":
+  version "11.11.6"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.11.6.tgz#df929d1bb2eee5afdda598a41930fe50b43eaa6a"
 
 ansi-colors@3.2.3:
   version "3.2.3"
@@ -510,9 +522,6 @@ homedir-polyfill@^1.0.1:
   resolved "https://registry.yarnpkg.com/homedir-polyfill/-/homedir-polyfill-1.0.3.tgz#743298cef4e5af3e194161fbadcc2151d3a058e8"
   dependencies:
     parse-passwd "^1.0.0"
-
-"http4t@file:../http4t":
-  version "0.0.0"
 
 inflight@^1.0.4:
   version "1.0.6"

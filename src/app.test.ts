@@ -1,6 +1,8 @@
 import { App } from "./app";
-import { ClientHandler, get, ServerHandler } from "http4t/contract/out/src";
 import { expect } from "chai";
+import { get } from "@http4t/core/requests";
+import { ServerHandler } from "@http4t/node/server";
+import { ClientHandler } from "@http4t/node/client";
 
 describe('probe', () => {
   const serverHandler = new ServerHandler(new App());

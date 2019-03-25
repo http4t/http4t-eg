@@ -17,12 +17,12 @@ describe('probe', () => {
   });
 
   it('ready', async () => {
-    const response = await new ClientHandler().handle(get(`${baseUrl}/probe/ready`));
+    const response = await new ClientHandler().handle(get(`${baseUrl}probe/ready`));
     expect(response.status).eq(200);
   });
 
   it('live', async () => {
-    const response = await new ClientHandler().handle(get(`${baseUrl}/probe/live`));
+    const response = await new ClientHandler().handle(get(`${baseUrl}probe/live`));
     expect(response.status).eq(200);
   });
 });

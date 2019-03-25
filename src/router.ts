@@ -1,5 +1,7 @@
 import { HttpHandler, HttpRequest, HttpResponse } from "@http4t/core/contract";
 import { response } from "@http4t/core/responses";
+import { Logger } from "./Logger";
+import { request } from "@http4t/core/requests";
 
 export type HttpHandlerFun = (req: HttpRequest) => Promise<HttpResponse>
 
@@ -29,7 +31,7 @@ export function routes(...requestsAndHandlers: any[]): HttpHandler {
 
   return {
     handle: async (request: HttpRequest) => {
-      const match = routes.find((route) => {
+      const matchedRoute = routes.find((route) => {
         const matchingOnRequest: HttpRequest = route[0];
         const methodAndPathMatch = matchingOnRequest.method === request.method && request.uri.path.includes(matchingOnRequest.uri.path);
         if (matchingOnRequest.headers.length === 0) return methodAndPathMatch;
@@ -41,8 +43,19 @@ export function routes(...requestsAndHandlers: any[]): HttpHandler {
         })
       });
 
-      if (match) return match[1](request);
-      return response(404)
+      if (matchedRoute) return matchedRoute[1](request);
+      return response(404, 'No routes matched')
     }
   }
 }
+
+export const router = (logger: Logger) => routes(
+  request('GET', '/probe/ready'), async () => {
+    logger.info('probed ready');
+    return response(200);
+  },
+  request('GET', '/probe/live'), async () => {
+    logger.info('probed live');
+    return response(200);
+  },
+);

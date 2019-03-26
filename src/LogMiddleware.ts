@@ -1,10 +1,10 @@
 import { HttpHandler, HttpRequest, HttpResponse } from "@http4t/core/contract";
-import { CumulativeLogger, Logger } from "./Logger";
+import { Logger } from "./Logger";
 
-export const logMiddleware = (handler: HttpHandler) => new LogMiddleware(handler);
+export const logMiddleware = (logger: Logger) => (handler: HttpHandler) => new LogMiddleware(handler, logger);
 
 export class LogMiddleware implements HttpHandler {
-  constructor(private handler: HttpHandler, private logger: Logger = new CumulativeLogger()) {
+  constructor(private handler: HttpHandler, private logger: Logger) {
   }
 
   async handle(request: HttpRequest): Promise<HttpResponse> {

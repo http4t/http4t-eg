@@ -7,8 +7,9 @@ export class App implements HttpHandler {
 
   async handle(request: HttpRequest) {
     const cumulativeLogger = new CumulativeLogger();
-
-    const appHandler = logMiddleware(router(cumulativeLogger));
+    
+    const cumulativeLogMiddleware = logMiddleware(cumulativeLogger);
+    const appHandler = cumulativeLogMiddleware(router(cumulativeLogger));
 
     return appHandler.handle(request);
   };

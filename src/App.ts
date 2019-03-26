@@ -1,7 +1,9 @@
 import { HttpHandler, HttpRequest } from "@http4t/core/contract";
-import { router } from "./router";
-import { CumulativeLogger } from "./Logger";
+import { routes } from "./router";
+import { CumulativeLogger, Logger } from "./Logger";
 import { httpInfoLogger } from "./HttpInfoLogger";
+import { request } from "@http4t/core/requests";
+import { response } from "@http4t/core/responses";
 
 export class App implements HttpHandler {
 
@@ -15,3 +17,21 @@ export class App implements HttpHandler {
   };
 }
 
+export const router = (logger: Logger) => routes(
+  request('GET', '/probe/ready'), async () => {
+    logger.info('probed ready');
+    return response(200);
+  },
+  request('GET', '/probe/live'), async () => {
+    logger.info('probed live');
+    return response(200);
+  },
+  request('POST', '/store/table'), async () => {
+    logger.info('storing json');
+    return response(201, 'id');
+  },
+  request('GET', '/store/table/id'), async () => {
+    logger.info('retrieving json');
+    return response(200, JSON.stringify({ name: 'Tom' }))
+  }
+);

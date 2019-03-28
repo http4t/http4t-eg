@@ -1,5 +1,5 @@
 import { HttpHandler, HttpRequest } from "@http4t/core/contract";
-import { routes } from "./router";
+import { HttpRequestWithCaptures, routes } from "./router";
 import { CumulativeLogger, Logger } from "./Logger";
 import { httpInfoLogger } from "./HttpInfoLogger";
 import { request } from "@http4t/core/requests";
@@ -30,8 +30,9 @@ export const router = (logger: Logger) => routes(
     logger.info('storing json');
     return response(201, 'id');
   },
-  request('GET', '/store/table/id'), async () => {
+  request('GET', '/store/{table}/{id:.*}'), async (req: HttpRequestWithCaptures) => {
     logger.info('retrieving json');
+    console.log(req.captures);
     return response(200, JSON.stringify({ name: 'Tom' }))
   }
 );

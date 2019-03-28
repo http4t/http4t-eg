@@ -2,7 +2,8 @@ import { request } from "@http4t/core/requests";
 import { HttpRequest } from "@http4t/core/contract";
 import { response } from "@http4t/core/responses";
 import { expect } from "chai";
-import { routes } from "./router";
+import { HttpRequestWithCaptures, routes } from "./router";
+import { bufferText } from "@http4t/core/bodies";
 
 describe('router', () => {
 
@@ -56,6 +57,18 @@ describe('router', () => {
 
     expect(res.status).eq(200);
     expect(res.body).eq('json');
+  });
+
+  it('exposes uri template capture', async () => {
+    const res = await routes(
+      request('GET', '/{name}/path/{regex:\\d+}'), async (_req: HttpRequestWithCaptures) => {
+        return response(200, JSON.stringify(_req.captures));
+      },
+    )
+      .handle(request('GET', '/tom/path/32145'));
+
+    expect(res.status).eq(200);
+    expect(JSON.parse(await bufferText(res.body))).eql({ name: 'tom', regex: '32145' });
   });
 
   it('404 if no match', async () => {

@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@http4t/core@0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@http4t/core/-/core-0.0.2.tgz#a1c5019cfb733a7a5718cfd78d9ae02421461bb9"
+"@http4t/core@0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@http4t/core/-/core-0.0.3.tgz#645feb9eb1ea84f12a3237457fe858607f5e5c21"
 
 "@http4t/node@0.0.1":
   version "0.0.1"

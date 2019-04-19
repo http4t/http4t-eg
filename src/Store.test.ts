@@ -1,33 +1,39 @@
-import { App } from "./app";
+import { App, PostgresTransactionPool } from "./app";
 import { expect } from "chai";
 import { get, post } from "@http4t/core/requests";
 import { ServerHandler } from "@http4t/node/server";
 import { ClientHandler } from "@http4t/node/client";
 import { bufferText } from "@http4t/core/bodies";
+import { Pool } from "pg";
 
-describe('store', () => {
-  const serverHandler = new ServerHandler(new App());
+describe('store', function() {
+  this.timeout(2000);
+
+  const postgresTransactionPool = new PostgresTransactionPool(new Pool({}));
+  const app = new App(postgresTransactionPool);
+  const serverHandler = new ServerHandler(app);
   let baseUrl;
 
   before(async () => {
+    await app.start();
     baseUrl = `${await serverHandler.url()}`;
   });
 
   after(async () => {
+    await app.stop();
     await serverHandler.close();
   });
 
   it('stores some json', async () => {
     const client = new ClientHandler();
-    const body = JSON.stringify({ name: 'Tom' });
+    const id = 'id' + (Math.random()*10000).toString().slice(0, 3);
+    const body = JSON.stringify({ id: id, document: { name: 'Tom' } });
 
-    const create = await client.handle(post(`${baseUrl}store/table`, body));
-    expect(create.status).eq(201);
+    const create = await client.handle(post(`${baseUrl}store`, body));
+    const returnedId = await bufferText(create.body);
+    expect(returnedId).eq(id);
 
-    const id = await bufferText(create.body);
-    expect(id).eq('id');
-
-    const retrieve = await client.handle(get(`${baseUrl}store/table/${id}`));
+    const retrieve = await client.handle(get(`${baseUrl}store/${returnedId}`));
     expect(await bufferText(retrieve.body)).eq(body)
   });
 });

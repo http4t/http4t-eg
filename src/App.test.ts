@@ -1,18 +1,22 @@
-import { App } from "./app";
+import { App, PostgresTransactionPool } from "./app";
 import { expect } from "chai";
 import { get } from "@http4t/core/requests";
 import { ServerHandler } from "@http4t/node/server";
 import { ClientHandler } from "@http4t/node/client";
+import { Pool } from "pg";
 
 describe('probe', () => {
-  const serverHandler = new ServerHandler(new App());
+  const app = new App(new PostgresTransactionPool(new Pool({})));
+  const serverHandler = new ServerHandler(app);
   let baseUrl;
 
   before(async () => {
+    await app.start();
     baseUrl = `${await serverHandler.url()}`;
   });
 
   after(async () => {
+    await app.stop();
     await serverHandler.close();
   });
 

@@ -9,8 +9,8 @@ describe('router', () => {
 
   it('handles with first route that matches path', async () => {
     const res = await routes(
-      request('GET', '/foo'), async (_req: HttpRequest) => response(200, '/foo'),
-      request('GET', '/foo/bar'), async (_req: HttpRequest) => response(200, '/foo/bar')
+      [request('GET', '/foo'), async (_req: HttpRequest) => response(200, '/foo')],
+      [request('GET', '/foo/bar'), async (_req: HttpRequest) => response(200, '/foo/bar')]
     )
       .handle(request('GET', '/foo'));
 
@@ -20,8 +20,8 @@ describe('router', () => {
 
   it('handles with first route that matches method and path', async () => {
     const res = await routes(
-      request('GET', '/foo'), async (_req: HttpRequest) => response(200, 'GET'),
-      request('POST', '/foo'), async (_req: HttpRequest) => response(200, 'POST')
+      [request('GET', '/foo'), async (_req: HttpRequest) => response(200, 'GET')],
+      [request('POST', '/foo'), async (_req: HttpRequest) => response(200, 'POST')]
     )
       .handle(request('POST', '/foo'));
 
@@ -31,8 +31,8 @@ describe('router', () => {
 
   it('handles with first route that matches method, path and headers', async () => {
     const res = await routes(
-      request('GET', '/foo', '', ['Content-Type', 'text/html']), async (_req: HttpRequest) => response(200, 'html'),
-      request('GET', '/foo', '', ['Content-Type', 'application/json']), async (_req: HttpRequest) => response(200, 'json')
+      [request('GET', '/foo', '', ['Content-Type', 'text/html']), async (_req: HttpRequest) => response(200, 'html')],
+      [request('GET', '/foo', '', ['Content-Type', 'application/json']), async (_req: HttpRequest) => response(200, 'json')]
     )
       .handle(request('GET', '/foo', '', ['Content-Type', 'application/json']));
 
@@ -42,7 +42,7 @@ describe('router', () => {
 
   it('matches multiple headers', async () => {
     let res = await routes(
-      request('GET', '/foo', '', ['Content-Type', 'application/json']), async (_req: HttpRequest) => response(200, 'json')
+      [request('GET', '/foo', '', ['Content-Type', 'application/json']), async (_req: HttpRequest) => response(200, 'json')]
     )
       .handle(request('GET', '/foo', '', ['Content-Type', 'application/json'], ['Accept', 'application/json']));
 
@@ -50,8 +50,8 @@ describe('router', () => {
     expect(res.body).eq('json');
 
     res = await routes(
-      request('GET', '/foo', '', ['Content-Type', 'application/json'], ['Accept', 'text/html']), async (_req: HttpRequest) => response(200, 'html'),
-      request('GET', '/foo', '', ['Content-Type', 'application/json'], ['Accept', 'application/json']), async (_req: HttpRequest) => response(200, 'json')
+      [request('GET', '/foo', '', ['Content-Type', 'application/json'], ['Accept', 'text/html']), async (_req: HttpRequest) => response(200, 'html')],
+      [request('GET', '/foo', '', ['Content-Type', 'application/json'], ['Accept', 'application/json']), async (_req: HttpRequest) => response(200, 'json')]
     )
       .handle(request('GET', '/foo', '', ['Content-Type', 'application/json'], ['Accept', 'application/json']));
 
@@ -61,9 +61,9 @@ describe('router', () => {
 
   it('exposes uri template capture', async () => {
     const res = await routes(
-      request('GET', '/{name}/path/{regex:\\d+}'), async (_req: HttpRequestWithCaptures) => {
+      [request('GET', '/{name}/path/{regex:\\d+}'), async (_req: HttpRequestWithCaptures) => {
         return response(200, JSON.stringify(_req.captures));
-      },
+      }],
     )
       .handle(request('GET', '/tom/path/32145'));
 
@@ -72,7 +72,7 @@ describe('router', () => {
   });
 
   it('404 if no match', async () => {
-    const res = await routes(request('GET', '/foo'), async (req: HttpRequest) => response(200, req.body))
+    const res = await routes([request('GET', '/foo'), async (req: HttpRequest) => response(200, req.body)])
       .handle(request('GET', '/bar'));
 
     expect(res.status).eq(404);

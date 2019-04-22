@@ -1,18 +1,17 @@
-import { App} from "./app";
-import { expect } from "chai";
-import { get, post } from "@http4t/core/requests";
-import { ServerHandler } from "@http4t/node/server";
-import { ClientHandler } from "@http4t/node/client";
-import { bufferText } from "@http4t/core/bodies";
-import { Pool } from "pg";
-import { PostgresTransactionPool } from "./TransactionPool";
-import { PostgresStore } from "./Store";
+import {bufferText} from "@http4t/core/bodies";
+import {get, post} from "@http4t/core/requests";
+import {ClientHandler} from "@http4t/node/client";
+import {ServerHandler} from "@http4t/node/server";
+import {expect} from "chai";
+import {Pool} from "pg";
+import {App} from "./app";
+import {PostgresTransactionPool} from "./TransactionPool";
 
-describe('store', function() {
+describe('store', function () {
   this.timeout(2000);
 
-  const postgresTransactionPool = new PostgresTransactionPool(new Pool({}));
-  const app = new App(new PostgresStore(postgresTransactionPool));
+  const pool = new PostgresTransactionPool(new Pool({}));
+  const app = new App(pool);
   const serverHandler = new ServerHandler(app);
   let baseUrl;
 
@@ -28,8 +27,8 @@ describe('store', function() {
 
   it('stores some json', async () => {
     const client = new ClientHandler();
-    const id = 'id' + (Math.random()*10000).toString().slice(0, 3);
-    const body = JSON.stringify({ id: id, document: { name: 'Tom' } });
+    const id = 'id' + (Math.random() * 10000).toString().slice(0, 3);
+    const body = JSON.stringify({id: id, document: {name: 'Tom'}});
 
     const create = await client.handle(post(`${baseUrl}store`, body));
     const returnedId = await bufferText(create.body);
@@ -37,5 +36,17 @@ describe('store', function() {
 
     const retrieve = await client.handle(get(`${baseUrl}store/${returnedId}`));
     expect(await bufferText(retrieve.body)).eq(body)
+  });
+
+  it('transactions roll back on error', async () => {
+    const client = new ClientHandler();
+    const id = 'id' + (Math.random() * 10000).toString().slice(0, 3);
+    const body = JSON.stringify({id: id, document: {name: 'Should not be created'}});
+
+    const failed = await client.handle(post(`${baseUrl}test/store-then-throw`, body));
+    expect(failed.status).eq(500);
+
+    const retrieve = await client.handle(get(`${baseUrl}store/${id}`));
+    expect(retrieve.status).eq(404)
   });
 });

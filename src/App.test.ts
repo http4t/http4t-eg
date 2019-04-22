@@ -1,14 +1,13 @@
-import { App} from "./app";
-import { expect } from "chai";
-import { get } from "@http4t/core/requests";
-import { ServerHandler } from "@http4t/node/server";
-import { ClientHandler } from "@http4t/node/client";
-import { Pool } from "pg";
-import { PostgresTransactionPool } from "./TransactionPool";
-import { PostgresStore } from "./Store";
+import {get} from "@http4t/core/requests";
+import {ClientHandler} from "@http4t/node/client";
+import {ServerHandler} from "@http4t/node/server";
+import {expect} from "chai";
+import {Pool} from "pg";
+import {App} from "./app";
+import {PostgresTransactionPool} from "./TransactionPool";
 
 describe('probe', () => {
-  const app = new App(new PostgresStore(new PostgresTransactionPool(new Pool({}))));
+  const app = new App(new PostgresTransactionPool(new Pool({})));
   const serverHandler = new ServerHandler(app);
   let baseUrl;
 

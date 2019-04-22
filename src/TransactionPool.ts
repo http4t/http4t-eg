@@ -1,12 +1,14 @@
-import { Pool, PoolClient } from "pg";
+import {Pool, PoolClient} from "pg";
 
 export interface Transaction {
   query(command: string, parameters?: any[]): Promise<any>
+
+  release(): Promise<void>
 }
 
 export interface TransactionPool {
-  start(): Promise<void>
   stop(): Promise<void>
+
   getTransaction(): Promise<Transaction>
 }
 
@@ -18,26 +20,21 @@ class PostgresTransaction implements Transaction {
     return this.client.query(command, parameters)
   }
 
+  async release(): Promise<void> {
+    this.client.release();
+  }
 }
 
 export class PostgresTransactionPool implements TransactionPool {
-  private client: PoolClient | undefined;
-
   constructor(private pool: Pool) {
   }
 
-  public async start() {
-    this.client = await this.pool.connect();
-  }
-
   public async stop() {
-    await this.client!.release();
     await this.pool.end();
   }
 
   public async getTransaction(): Promise<Transaction> {
-    if (!this.client) throw new Error('Pool not started.');
-    return new PostgresTransaction(this.client);
+    return new PostgresTransaction(await this.pool.connect());
   }
 
 }

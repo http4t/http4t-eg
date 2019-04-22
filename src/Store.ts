@@ -1,16 +1,12 @@
-import { Transaction, TransactionPool } from "./TransactionPool";
+import { Transaction} from "./TransactionPool";
 
 export interface Store {
   get(id: string): any;
   save(id: string, document: object): Promise<any>;
-  getTransaction(): Promise<Transaction>;
-  migrate(): Promise<any>
 }
 
 export class PostgresStore implements Store {
-  private transaction?: Transaction;
-
-  constructor(private transactionPool: TransactionPool) {
+  constructor(private transaction: Transaction) {
   }
 
   public async save(id: string, document: object): Promise<void> {
@@ -22,14 +18,5 @@ export class PostgresStore implements Store {
     if (!this.transaction) throw new Error('No transaction.');
     const query = await this.transaction.query('SELECT * FROM store t WHERE t.id = $1', [id]);
     return query.rows[0];
-  }
-
-  public async getTransaction(): Promise<Transaction> {
-    return this.transactionPool.getTransaction();
-  }
-
-  public async migrate() {
-    if (!this.transaction) throw new Error('No transaction.');
-    this.transaction.query('CREATE TABLE IF NOT EXISTS store (id varchar(64) primary key, document jsonb)');
   }
 }

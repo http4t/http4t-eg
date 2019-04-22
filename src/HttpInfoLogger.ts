@@ -1,9 +1,12 @@
-import { HttpHandler, HttpRequest, HttpResponse } from "@http4t/core/contract";
-import { Logger } from "./Logger";
+import {HttpHandler, HttpRequest, HttpResponse} from "@http4t/core/contract";
+import {HttpMiddleware} from "./middleware";
+import {Logger} from "./Logger";
 
-export const httpInfoLogger = (logger: Logger) => (handler: HttpHandler) => new HttpInfoLogger(handler, logger);
+export function httpInfoLogger(logger: Logger): HttpMiddleware {
+  return (handler: HttpHandler) => new HttpInfoLogger(handler, logger);
+}
 
-export class HttpInfoLogger implements HttpHandler {
+class HttpInfoLogger implements HttpHandler {
   constructor(private handler: HttpHandler, private logger: Logger) {
   }
 

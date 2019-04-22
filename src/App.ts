@@ -5,58 +5,17 @@ import { httpInfoLogger } from "./HttpInfoLogger";
 import { request } from "@http4t/core/requests";
 import { response } from "@http4t/core/responses";
 import { bufferText } from "@http4t/core/bodies";
-import { PostgresStore, Store } from "./Store";
-import { Pool, PoolClient } from "pg";
-
-export interface Transaction {
-  query(command: string, parameters?: any[]): Promise<any>
-}
-
-export interface TransactionPool {
-  start(): Promise<void>
-  stop(): Promise<void>
-  getTransaction(): Promise<Transaction>
-}
-
-class PostgresTransaction implements Transaction {
-  constructor(private client: PoolClient) {
-  }
-
-  async query(command: string, parameters: (string|number|boolean)[]): Promise<any> {
-    return this.client.query(command, parameters)
-  }
-
-}
-
-export class PostgresTransactionPool implements TransactionPool {
-  private client: PoolClient | undefined;
-  constructor(private pool: Pool){}
-
-  public async start() {
-    this.client = await this.pool.connect();
-  }
-
-  public async stop() {
-    await this.client!.release();
-    await this.pool.end();
-  }
-
-  public async getTransaction(): Promise<Transaction> {
-    if (!this.client) throw new Error('Pool not started.');
-    return new PostgresTransaction(this.client);
-  }
-
-}
+import { Store } from "./Store";
 
 export class App implements HttpHandler {
 
-  constructor(private pool: TransactionPool) {
+  constructor(private store: Store) {
   }
 
   async handle(request: HttpRequest) {
     const cumulativeLogger = new CumulativeLogger();
-    const transaction = await this.pool.getTransaction();
-    const postgresStore = new PostgresStore(transaction);
+    const transaction = await this.store.getTransaction();
+    const postgresStore = this.store;
     await postgresStore.migrate();
 
     const cumulativeLogMiddleware = httpInfoLogger(cumulativeLogger);
@@ -66,11 +25,11 @@ export class App implements HttpHandler {
   };
 
   async start() {
-    await this.pool.start();
+    await this.store.start();
   }
 
   async stop() {
-    await this.pool.stop();
+    await this.store.stop();
   }
 }
 

@@ -1,16 +1,18 @@
-import { App, PostgresTransactionPool } from "./app";
+import { App} from "./app";
 import { expect } from "chai";
 import { get, post } from "@http4t/core/requests";
 import { ServerHandler } from "@http4t/node/server";
 import { ClientHandler } from "@http4t/node/client";
 import { bufferText } from "@http4t/core/bodies";
 import { Pool } from "pg";
+import { PostgresTransactionPool } from "./TransactionPool";
+import { PostgresStore } from "./Store";
 
 describe('store', function() {
   this.timeout(2000);
 
   const postgresTransactionPool = new PostgresTransactionPool(new Pool({}));
-  const app = new App(postgresTransactionPool);
+  const app = new App(new PostgresStore(postgresTransactionPool));
   const serverHandler = new ServerHandler(app);
   let baseUrl;
 

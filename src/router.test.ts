@@ -7,15 +7,15 @@ import { bufferText } from "@http4t/core/bodies";
 
 describe('router', () => {
 
-  it('handles with first route that matches path', async () => {
+  it('handles with first route that exactly matches path', async () => {
     const res = await routes(
-      [request('GET', '/foo'), async (_req: HttpRequest) => response(200, '/foo')],
-      [request('GET', '/foo/bar'), async (_req: HttpRequest) => response(200, '/foo/bar')]
+      [request('GET', '/store'), async (_req: HttpRequest) => response(200, '/store')],
+      [request('GET', '/test/store-then-throw'), async (_req: HttpRequest) => response(200, '/store-then-throw')]
     )
-      .handle(request('GET', '/foo'));
+      .handle(request('GET', '/test/store-then-throw'));
 
     expect(res.status).eq(200);
-    expect(res.body).eq('/foo');
+    expect(res.body).eq('/store-then-throw');
   });
 
   it('handles with first route that matches method and path', async () => {
@@ -27,36 +27,6 @@ describe('router', () => {
 
     expect(res.status).eq(200);
     expect(res.body).eq('POST');
-  });
-
-  it('handles with first route that matches method, path and headers', async () => {
-    const res = await routes(
-      [request('GET', '/foo', '', ['Content-Type', 'text/html']), async (_req: HttpRequest) => response(200, 'html')],
-      [request('GET', '/foo', '', ['Content-Type', 'application/json']), async (_req: HttpRequest) => response(200, 'json')]
-    )
-      .handle(request('GET', '/foo', '', ['Content-Type', 'application/json']));
-
-    expect(res.status).eq(200);
-    expect(res.body).eq('json');
-  });
-
-  it('matches multiple headers', async () => {
-    let res = await routes(
-      [request('GET', '/foo', '', ['Content-Type', 'application/json']), async (_req: HttpRequest) => response(200, 'json')]
-    )
-      .handle(request('GET', '/foo', '', ['Content-Type', 'application/json'], ['Accept', 'application/json']));
-
-    expect(res.status).eq(200);
-    expect(res.body).eq('json');
-
-    res = await routes(
-      [request('GET', '/foo', '', ['Content-Type', 'application/json'], ['Accept', 'text/html']), async (_req: HttpRequest) => response(200, 'html')],
-      [request('GET', '/foo', '', ['Content-Type', 'application/json'], ['Accept', 'application/json']), async (_req: HttpRequest) => response(200, 'json')]
-    )
-      .handle(request('GET', '/foo', '', ['Content-Type', 'application/json'], ['Accept', 'application/json']));
-
-    expect(res.status).eq(200);
-    expect(res.body).eq('json');
   });
 
   it('exposes uri template capture', async () => {

@@ -22,7 +22,10 @@ export class Router implements HttpHandler {
   }
 
   public async handle(request: HttpRequest): Promise<HttpResponse> {
-    const matchedRoute = this.matchRoute(this.routes, request);
+    const matchedRoute = this.routes.find(([matchingOnRequest, _handler]) => {
+      return matchingOnRequest.method === request.method
+        && uriTemplate(matchingOnRequest.uri.path).matches(request.uri.path);
+    });
 
     if (matchedRoute) {
       const captures = uriTemplate(matchedRoute[0].uri.path).extract(request.uri.path);
@@ -32,21 +35,5 @@ export class Router implements HttpHandler {
       return matchedRoute[1](requestWithCaptures);
     }
     return response(404, 'No routes matched')
-  }
-
-  private matchRoute(routes, request: HttpRequest): Route | undefined {
-    return routes.find(([matchingOnRequest, _handler]) => {
-      const methodAndPathMatch = matchingOnRequest.method === request.method
-        && uriTemplate(matchingOnRequest.uri.path).matches(request.uri.path);
-
-      if (matchingOnRequest.headers.length === 0) return methodAndPathMatch;
-
-      return methodAndPathMatch
-        && matchingOnRequest.headers.every(matchingHeader => {
-          return request.headers.find(header => {
-            return matchingHeader[0] === header[0] && matchingHeader[1] === header[1]
-          }) !== undefined;
-        })
-    });
   }
 }

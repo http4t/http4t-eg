@@ -18,8 +18,8 @@ export function routes(...allRoutes: Route[]): HttpHandler {
 export class Router implements HttpHandler {
   private routes: Route[];
 
-  constructor(...allRoutes: Route[]) {
-    this.routes = allRoutes
+  constructor(...routes: Route[]) {
+    this.routes = routes
   }
 
   public async handle(request: HttpRequest): Promise<HttpResponse> {
@@ -29,12 +29,13 @@ export class Router implements HttpHandler {
     });
 
     if (matchedRoute) {
-      const captures = uriTemplate(matchedRoute[0].uri.path).extract(request.uri.path);
-      const requestWithCaptures = {
+      const [req, handler] = matchedRoute;
+      const captures = uriTemplate(req.uri.path).extract(request.uri.path);
+
+      return handler({
         ...request,
         captures
-      };
-      return matchedRoute[1](requestWithCaptures);
+      });
     }
 
     return response(404, 'No routes matched')

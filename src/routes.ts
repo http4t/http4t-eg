@@ -57,27 +57,31 @@ function storeRoutes(logger: Logger, store: Store) {
   ];
 }
 
+function testTransactionRoute(logger: Logger, store: Store): Route {
+  return post('/test/store-then-throw', async (req) => {
+    logger.info('throwing an exception');
+    const text = await bufferText(req.body);
+    const body = JSON.parse(text);
+    await store.save(body.id, body.document);
+    // Transaction should roll back
+    throw new Error("Deliberate error");
+  });
+}
+
+
 export class ExampleRouter implements HttpHandler {
 
   constructor(private store: Store, private logger: Logger) {
   }
 
   handle(request: HttpRequest): Promise<HttpResponse> {
-    const routing = routes(
+    const composed = routes(
       ...probeRoutes(this.logger),
       ...storeRoutes(this.logger, this.store),
-
-      post('/test/store-then-throw', async (req) => {
-        this.logger.info('throwing an exception');
-        const text = await bufferText(req.body);
-        const body = JSON.parse(text);
-        await this.store.save(body.id, body.document);
-        // Transaction should roll back
-        throw new Error("Deliberate error");
-      })
+      testTransactionRoute(this.logger, this.store)
     );
 
-    return routing.handle(request);
+    return composed.handle(request);
   }
 
 }

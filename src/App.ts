@@ -1,37 +1,17 @@
-import {HttpHandler, HttpRequest, HttpResponse} from "@http4t/core/contract";
-import {httpInfoLogger} from "./HttpInfoLogger";
-import {CumulativeLogger} from "./Logger";
-import {middlewares} from "./middleware";
-import {handleError} from "./middleware/errors";
-import {inTransaction} from "./middleware/transaction";
-import {router} from "./routes";
-import {PostgresStore} from "./Store";
-import {TransactionPool} from "./TransactionPool";
-
-
-export function http(handle: (r: HttpRequest) => Promise<HttpResponse>): HttpHandler {
-  return {handle};
-}
-
-async function migrateDb(transactionPool: TransactionPool): Promise<void> {
-  const transaction = await transactionPool.getTransaction();
-  if (!transaction) throw new Error('No transaction.');
-  try {
-    await transaction.query('BEGIN');
-    await transaction.query('CREATE TABLE IF NOT EXISTS store (id varchar(64) primary key, document jsonb)');
-    await transaction.query('COMMIT');
-  } catch (e) {
-    await transaction.query('ROLLBACK');
-    throw e;
-  } finally {
-    await transaction.release();
-  }
-}
+import { HttpHandler, HttpRequest } from "@http4t/core/contract";
+import { httpInfoLogger } from "./log/HttpInfoLogger";
+import { CumulativeLogger } from "./Logger";
+import { handleError } from "./filters/errors";
+import { inTransaction } from "./filters/transaction";
+import { PostgresStore } from "./Store";
+import { TransactionPool } from "./TransactionPool";
+import { middlewares } from "./utils/Filter";
+import { ExampleRouter } from "./routes";
+import { migrate } from "./Db";
 
 export class App implements HttpHandler {
 
-  constructor(private transactionPool: TransactionPool) {
-  }
+  constructor(private transactionPool: TransactionPool) {}
 
   async handle(request: HttpRequest) {
     const transaction = await this.transactionPool.getTransaction();
@@ -43,12 +23,13 @@ export class App implements HttpHandler {
       httpInfoLogger(logger),
       handleError(logger));
 
-    const handler = middleware(router(store, logger));
+    const handler = middleware(new ExampleRouter(store, logger));
+
     return handler.handle(request);
   };
 
   async start() {
-    await migrateDb(this.transactionPool);
+    await migrate(this.transactionPool);
   }
 
   async stop() {

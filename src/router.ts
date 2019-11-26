@@ -6,9 +6,10 @@ export interface HttpRequestWithCaptures extends HttpRequest {
   captures: Captures
 }
 
-export type HttpHandlerFun = (req: HttpRequestWithCaptures) => Promise<HttpResponse>
+export type HttpHandlerFun = (req: HttpRequest) => Promise<HttpResponse>
+export type RoutedHandlerFun = (req: HttpRequestWithCaptures) => Promise<HttpResponse>
 
-export type Route = [HttpRequest, HttpHandlerFun];
+export type Route = [HttpRequest, RoutedHandlerFun];
 
 export function routes(...allRoutes: Route[]): HttpHandler {
   return new Router(...allRoutes)
@@ -30,10 +31,12 @@ export class Router implements HttpHandler {
     if (matchedRoute) {
       const captures = uriTemplate(matchedRoute[0].uri.path).extract(request.uri.path);
       const requestWithCaptures = {
-        ...request, captures
+        ...request,
+        captures
       };
       return matchedRoute[1](requestWithCaptures);
     }
+
     return response(404, 'No routes matched')
   }
 }

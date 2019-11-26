@@ -1,8 +1,8 @@
-import {HttpHandler, HttpRequest, HttpResponse} from "@http4t/core/contract";
-import {HttpMiddleware} from "./middleware";
-import {Logger} from "./Logger";
+import { HttpHandler, HttpRequest, HttpResponse } from "@http4t/core/contract";
+import { Logger } from "../Logger";
+import { Filter } from "../utils/Filter";
 
-export function httpInfoLogger(logger: Logger): HttpMiddleware {
+export function httpInfoLogger(logger: Logger): Filter {
   return (handler: HttpHandler) => new HttpInfoLogger(handler, logger);
 }
 

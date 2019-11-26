@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
+source ~/.nvm/nvm.sh
+nvm use
+npm test

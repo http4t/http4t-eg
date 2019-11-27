@@ -44,8 +44,7 @@ function storeRoutes(logger: Logger, store: Store) {
       return response(201, body.id);
     }),
     get('/store/{id:.*}', async (req: HttpRequestWithCaptures) => {
-      const captures = req.captures;
-      const id = captures.id as string;
+      const id = req.path.id as string;
       const document = await store.get(id);
       if (!document)
         return response(404);

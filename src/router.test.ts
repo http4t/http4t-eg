@@ -32,7 +32,7 @@ describe('router', () => {
   it('exposes uri template capture', async () => {
     const res = await routes(
       [request('GET', '/{name}/path/{regex:\\d+}'), async (_req: HttpRequestWithCaptures) => {
-        return response(200, JSON.stringify(_req.captures));
+        return response(200, JSON.stringify(_req.path));
       }],
     )
       .handle(request('GET', '/tom/path/32145'));

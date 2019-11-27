@@ -8,8 +8,8 @@
     "test": "mocha --require ts-node/register src/**/*.test.ts"
   },
   "dependencies": {
-    "@http4t/core": "0.0.93",
-    "@http4t/node": "0.0.93",
+    "@http4t/core": "0.0.103",
+    "@http4t/node": "0.0.103",
     "pg": "7.9.0",
     "ts-node": "8.1.0",
     "typescript": "3.4.3"

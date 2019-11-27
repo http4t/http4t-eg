@@ -1,10 +1,8 @@
 import { HttpHandler, HttpRequest, HttpResponse } from "@http4t/core/contract";
 import { response } from "@http4t/core/responses";
-import { Captures, uriTemplate } from "@http4t/core/uriTemplate";
+import { uriTemplate, UriTemplateCaptures } from "@http4t/core/uriTemplate";
 
-export interface HttpRequestWithCaptures extends HttpRequest {
-  captures: Captures
-}
+export interface HttpRequestWithCaptures extends HttpRequest, UriTemplateCaptures {}
 
 export type HttpHandlerFun = (req: HttpRequest) => Promise<HttpResponse>
 export type RoutedHandlerFun = (req: HttpRequestWithCaptures) => Promise<HttpResponse>
@@ -19,8 +17,7 @@ export class Router implements HttpHandler {
   private routes: Route[];
 
   constructor(...routes: Route[]) {
-    this.routes = routes
-  }
+    this.routes = routes}
 
   public async handle(request: HttpRequest): Promise<HttpResponse> {
     const matchedRoute = this.routes.find(([matchingOnRequest, _handler]) => {
@@ -30,11 +27,11 @@ export class Router implements HttpHandler {
 
     if (matchedRoute) {
       const [req, handler] = matchedRoute;
-      const captures = uriTemplate(req.uri.path).extract(request.uri.path);
+      const captures: UriTemplateCaptures = uriTemplate(req.uri.path).extract(request.uri.path);
 
       return handler({
         ...request,
-        captures
+        ...captures
       });
     }
 
